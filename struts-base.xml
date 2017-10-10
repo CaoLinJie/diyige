@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<constant name="struts.devMode" value="false" />
+	<!-- 设置上传文件大小不超过9M -->
+	<constant name="struts.multipart.maxSize" value="10000000"/> 
+	<constant name="struts.enable.DynamicMethodInvocation" value="true"></constant>
+	<!-- 类名最后的组成部分，比如设置成qqq，则MyTestqqq将视为action，而MyTest则不是，访问时? 会截去这个部分 -->
+	<!--
+		<constant name="struts.convention.action.suffix" value="Controller"/>
+	-->
+	<!-- 始终创建action映射，即使没有@Action被发现 -->
+	<constant name="struts.convention.action.mapAllMatches" value="true" />
+	<!-- 设置默认的父包 ，默认为：struts struts2 action actions -->
+	<constant name="struts.convention.package.locators" value="action" />
+	<!-- action分隔符 用"_"  -->
+	<constant name="struts.convention.action.name.separator" value="_" />
+		
+	<!-- 结果资源的路径 -->
+	<constant name="struts.convention.result.path" value="/WEB-INF/admin/" />
+
+	<package name="login" extends="json-default" namespace="">
+		<global-results>
+			<!-- 定义login逻辑视图对应的视图资源 -->
+			<result name="home">/WEB-INF/admin/common/main/home.jsp</result>
+			<result name="login">/index.jsp</result>
+			<result name="index">/index.jsp</result>
+			<result name="error">/webloginerror.jsp</result>
+			<result type="json"></result>
+			<result name="homeclientmain" type="redirect">/login/logincheck</result>
+		</global-results> 
+	</package>
+
+	<package name="home" extends="json-default" namespace="">
+		<global-results>
+			<!-- 定义login逻辑视图对应的视图资源 -->
+			<result name="home">/WEB-INF/admin/common/main/home.jsp</result>
+			<result name="login">/index.jsp</result>
+			<result name="index">/index.jsp</result>
+			<result type="json"></result>
+		</global-results>
+	</package>
+
+	<package name="default" extends="struts-default" namespace="/default">
+		<!-- 定义是否已登陆校验拦截器  -->
+		<interceptors>
+			<interceptor name="authority"
+				class="com.superdata.common.interceptor.CheckLoginIntercepter">
+			</interceptor>
+			<!-- 拦截器栈  -->
+			<interceptor-stack name="sd-interceptor-stack">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="authority" />
+			</interceptor-stack>
+		</interceptors>
+
+		<!-- 设置全局 全局默认的拦截器栈-->
+		<default-interceptor-ref name="sd-interceptor-stack"></default-interceptor-ref>
+		
+		<!-- 定义全局Result映射 -->
+		<global-results>
+			<!-- 定义login逻辑视图对应的视图资源 -->
+			<result name="login">/index.jsp</result>
+			<result name="error"  type="redirect">/webloginerror.jsp</result>
+			<result name="home">/WEB-INF/admin/common/main/home.jsp</result>
+			<result name="cbplogin">/WEB-INF/admin/common/main/cbphome.jsp</result>
+		</global-results>
+
+	</package>
+
+	<!-- 定义JSon的默认配置-->
+	<package name="json" extends="json-default" namespace="/defaultjson">
+
+		<!-- 定义是否已登陆校验拦截器 -->
+		<interceptors>
+			<interceptor name="authority"
+				class="com.superdata.common.interceptor.CheckLoginIntercepter">
+			</interceptor>
+			<!-- 拦截器栈 -->
+			<interceptor-stack name="sd-interceptor-stack">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="authority" />
+			</interceptor-stack>
+		</interceptors>
+
+		<!-- 设置全局 全局默认的拦截器栈 type="redirect"-->
+		<default-interceptor-ref name="sd-interceptor-stack"></default-interceptor-ref>
+
+		<global-results>
+			<!-- 定义login逻辑视图对应的视图资源 type="redirect" -->
+			<result name="login">/index.jsp</result>
+			<result name="error">/webloginerror.jsp</result>
+			<!-- 定义错误拦截还回json格式 -->
+			<result name="input" type="json">
+	      	 <param name="root">returnResult</param>
+	      	</result>
+			<result type="json">
+				<param name="excludeProperties">dynaBeanList\[\d+\]\.dynaClass
+				</param>
+			</result>
+		</global-results>
+	</package>
+
+	<package name="fjsp" namespace="/filterjsp" extends="json-default">
+		<action name="toerror">
+			<result>/webloginerror.jsp</result>
+		</action>
+	</package>
+</struts>
